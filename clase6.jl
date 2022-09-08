@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.2
+# v0.19.11
 
 using Markdown
 using InteractiveUtils
@@ -322,6 +322,9 @@ md"""En este caso cambiamos la acción `open!` por la acción `terminate!`, por 
 # ╔═╡ a4742f7c-f90a-47e4-879a-96c8c5861d1b
 md"""# Ejercicio 15"""
 
+# ╔═╡ 587518bb-fa4b-46aa-b4a3-cbba9927f655
+md"""Genero la funcion caida"""
+
 # ╔═╡ 01e2ef90-d7dd-48eb-8094-6d89cd355636
 function caída(u,p,t)
 	g,m,γ = p
@@ -331,12 +334,98 @@ function caída(u,p,t)
 	return du
 end
 
+# ╔═╡ a5c474bb-e6ee-4556-9999-b67bbf28b3c3
+md"""Datos Iniciales"""
+
+# ╔═╡ 11fe5b10-8e7e-4b21-b041-6e7c2c849189
+function condición_picar(u,t,integrator)
+	u[1] <= 0 
+end
+
+# ╔═╡ 342241f4-1a9a-4022-a534-7c12cd2177eb
+function picar!(integrator)
+	integrator.u[1] = -integrator.u[1]
+	integrator.u[2] = -integrator.u[2]
+end
+
+# ╔═╡ f28e6852-2b9a-46e8-bb11-84de60a2d868
+dc15 = DiscreteCallback(condición_picar,picar!)
+
+
 # ╔═╡ ac1b1f0b-aba0-4da5-a688-8633bd93d844
-begin 
-	dato       = [55.8,0.0]
-	tspan      = (0.0,3.4)
-	p          = (9.81,16,0.0058) #g,m,γ
-	prob_cañón = ODEProblem(caída,dato,tspan,p)
+function res_15()
+	u₀       = [55.8,0.0]
+	tspan      = (0.0,100)
+	p          = (9.81,16,0) #g,m,γ
+	prob_canion = ODEProblem(caída,u₀,tspan,p)
+	solve(prob_canion, callback=dc15,dtmax=0.01)
+end
+
+
+
+# ╔═╡ 0f1c98a6-c3e6-4c54-9505-93f52b770cea
+
+
+# ╔═╡ 1f623ef1-0a3d-4c64-b535-5ce7e57831ca
+md"""Genero Discrete CallBack"""
+
+# ╔═╡ 0be4f263-2bcd-427f-83bd-95cca80f7ff8
+
+
+# ╔═╡ 06442fa9-f0fa-4dfa-a425-4ddf3eb08851
+begin
+	s₁₅ = res_15() 
+	animate(s₁₅)
+end
+
+# ╔═╡ 64003c70-b445-4eb8-bc68-8d93ae7fa4f3
+
+
+# ╔═╡ f387a020-1383-403a-8963-ffa304f4c444
+
+
+# ╔═╡ dbd356d7-f989-493e-957e-4f8ad062f0ec
+function sir_cuarentena_mil()
+	β  = 0.4; γ = 0.1
+	p  = [β,γ]
+	t  = (0.0,100.0)
+	u₀ = [9999,1,0]
+	P  = ODEProblem(sir!,u₀,t,p)
+	solve(P,callback=dcdtmax=0.01)
+end
+
+# ╔═╡ e95054c3-a9b2-4a1f-9600-b8a539ba7476
+md"""
+## Usamos el ContinuousCallback
+"""
+
+# ╔═╡ 6c96c6af-1444-4bfd-953c-d0cf9fff0494
+function condicion_picar_cont(u,t,integrator)
+	u[1]
+end
+
+# ╔═╡ fdb39f9a-00d2-4a4e-a801-174a7fbeb929
+function picar_cont!(integrator)
+	integrator.u[2] = -integrator.u[2]
+end
+
+# ╔═╡ b0c2fb28-71cc-4ede-8ca9-c0a4ce1031ab
+cc15 = DiscreteCallback(condicion_picar_cont,picar_cont!)
+
+
+# ╔═╡ 0220115a-9115-40a3-8ffa-b9832b7dcca3
+function res_15Cont()
+	u₀       = [55.8,0.0]
+	tspan      = (0.0,20)
+	p          = (9.81,16,0) #g,m,γ
+	prob_canion = ODEProblem(caída,u₀,tspan,p)
+	solve(prob_canion, callback=dc15,dtmax=0.01)
+end
+
+# ╔═╡ 6fec3014-cce9-4207-83bc-0d8906b20212
+begin
+	sCont₁₅ = res_15Cont() 
+	plot(sCont₁₅)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -354,8 +443,9 @@ Plots = "~1.31.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.2"
+julia_version = "1.8.0"
 manifest_format = "2.0"
+project_hash = "f6449780646960382b05810ea8fdac8d7e5e59d9"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
@@ -365,6 +455,7 @@ version = "3.4.0"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
+version = "1.1.1"
 
 [[deps.ArnoldiMethod]]
 deps = ["LinearAlgebra", "Random", "StaticArrays"]
@@ -535,6 +626,7 @@ version = "4.2.0"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
+version = "0.5.2+0"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
@@ -648,8 +740,9 @@ uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 version = "0.9.1"
 
 [[deps.Downloads]]
-deps = ["ArgTools", "LibCURL", "NetworkOptions"]
+deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+version = "1.6.0"
 
 [[deps.DualNumbers]]
 deps = ["Calculus", "NaNMath", "SpecialFunctions"]
@@ -708,6 +801,9 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "cfd9d0dbb947181644c00bd7e988b4bb30a5b2a5"
 uuid = "29a986be-02c6-4525-aec4-84b980013641"
 version = "1.2.6"
+
+[[deps.FileWatching]]
+uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
@@ -999,10 +1095,12 @@ version = "1.0.0"
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
+version = "0.6.3"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
+version = "7.84.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
@@ -1011,6 +1109,7 @@ uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
+version = "1.10.2+0"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -1124,6 +1223,7 @@ version = "1.1.5"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
+version = "2.28.0+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "e498ddeee6f9fdb4551ce855a46f54dbd900245f"
@@ -1141,6 +1241,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
+version = "2022.2.1"
 
 [[deps.MuladdMacro]]
 git-tree-sha1 = "c6190f9a7fc5d9d5915ab29f2134421b12d24a68"
@@ -1167,6 +1268,7 @@ version = "1.0.1"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
+version = "1.2.0"
 
 [[deps.NonlinearSolve]]
 deps = ["ArrayInterfaceCore", "FiniteDiff", "ForwardDiff", "IterativeSolvers", "LinearAlgebra", "RecursiveArrayTools", "RecursiveFactorization", "Reexport", "SciMLBase", "Setfield", "StaticArrays", "UnPack"]
@@ -1189,10 +1291,12 @@ version = "1.3.5+1"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
+version = "0.3.20+0"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
+version = "0.8.1+0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1262,6 +1366,7 @@ version = "0.40.1+0"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+version = "1.8.0"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1419,6 +1524,7 @@ version = "0.3.0+0"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+version = "0.7.0"
 
 [[deps.SIMDDualNumbers]]
 deps = ["ForwardDiff", "IfElse", "SLEEFPirates", "VectorizationBase"]
@@ -1579,6 +1685,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
+version = "5.10.1+0"
 
 [[deps.Sundials]]
 deps = ["CEnum", "DataStructures", "DiffEqBase", "Libdl", "LinearAlgebra", "Logging", "Reexport", "SnoopPrecompile", "SparseArrays", "Sundials_jll"]
@@ -1595,6 +1702,7 @@ version = "5.2.1+0"
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+version = "1.0.0"
 
 [[deps.TableTraits]]
 deps = ["IteratorInterfaceExtensions"]
@@ -1611,6 +1719,7 @@ version = "1.7.0"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
+version = "1.10.0"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -1844,6 +1953,7 @@ version = "1.4.0+3"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
+version = "1.2.12+3"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1872,6 +1982,7 @@ version = "0.15.1+0"
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
+version = "5.1.1+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1894,10 +2005,12 @@ version = "1.3.7+1"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
+version = "1.48.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
+version = "17.4.0+0"
 
 [[deps.x264_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1976,7 +2089,25 @@ version = "1.4.1+0"
 # ╠═af69669f-b0b8-4621-841e-76b64dfc1a95
 # ╟─320762fa-7010-472b-9add-b925c7b7d211
 # ╟─a4742f7c-f90a-47e4-879a-96c8c5861d1b
+# ╟─587518bb-fa4b-46aa-b4a3-cbba9927f655
 # ╠═01e2ef90-d7dd-48eb-8094-6d89cd355636
+# ╟─a5c474bb-e6ee-4556-9999-b67bbf28b3c3
+# ╠═11fe5b10-8e7e-4b21-b041-6e7c2c849189
+# ╠═342241f4-1a9a-4022-a534-7c12cd2177eb
+# ╠═f28e6852-2b9a-46e8-bb11-84de60a2d868
 # ╠═ac1b1f0b-aba0-4da5-a688-8633bd93d844
+# ╠═0f1c98a6-c3e6-4c54-9505-93f52b770cea
+# ╠═1f623ef1-0a3d-4c64-b535-5ce7e57831ca
+# ╠═0be4f263-2bcd-427f-83bd-95cca80f7ff8
+# ╠═06442fa9-f0fa-4dfa-a425-4ddf3eb08851
+# ╠═64003c70-b445-4eb8-bc68-8d93ae7fa4f3
+# ╠═f387a020-1383-403a-8963-ffa304f4c444
+# ╠═dbd356d7-f989-493e-957e-4f8ad062f0ec
+# ╠═e95054c3-a9b2-4a1f-9600-b8a539ba7476
+# ╠═6c96c6af-1444-4bfd-953c-d0cf9fff0494
+# ╠═fdb39f9a-00d2-4a4e-a801-174a7fbeb929
+# ╠═b0c2fb28-71cc-4ede-8ca9-c0a4ce1031ab
+# ╠═0220115a-9115-40a3-8ffa-b9832b7dcca3
+# ╠═6fec3014-cce9-4207-83bc-0d8906b20212
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
